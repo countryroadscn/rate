@@ -14,13 +14,9 @@ import (
 )
 
 func setup() {
-	// redisClient := redis.NewClient(&redis.Options{
-	// 	Addr:     "127.0.0.1:6379",
-	// 	Password: "",
-	// })
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "202.168.117.35:31010",
-		Password: "Common_789#$^",
+		Addr:     "127.0.0.1:6379",
+		Password: "",
 	})
 
 	val, err := redisClient.Ping(context.Background()).Result()
