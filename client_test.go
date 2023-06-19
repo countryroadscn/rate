@@ -2,6 +2,7 @@
 package rate
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"sync"
@@ -13,12 +14,27 @@ import (
 )
 
 func setup() {
-	if err := SetRedis(redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
-		Password: "",
-	})); err != nil {
+	// redisClient := redis.NewClient(&redis.Options{
+	// 	Addr:     "127.0.0.1:6379",
+	// 	Password: "",
+	// })
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     "202.168.117.35:31010",
+		Password: "Common_789#$^",
+	})
+
+	val, err := redisClient.Ping(context.Background()).Result()
+	if err != nil {
+		panic(fmt.Sprintf("fail to ping redis client: %v", err))
+	}
+	fmt.Println(val)
+	if err := SetRedis(redisClient); err != nil {
 		panic(fmt.Sprintf("fail to initialize redis client: %v", err))
 	}
+}
+
+func TestRedisClient(t *testing.T) {
+	setup()
 }
 
 func teardown() {
