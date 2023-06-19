@@ -12,14 +12,14 @@ According to [Stripe's rate-limiters practice](https://stripe.com/blog/rate-limi
 ## Install
 
 ```shell
-go get "github.com/contryroadscn/rate"
+go get "github.com/countryroadscn/rate"
 ```
 
 ## Usage
 
 ```go
 import (
-    rate "github.com/contryroadscn/rate/redis"
+    rate "github.com/countryroadscn/rate/redis"
 )
 
 // initialize redis.
