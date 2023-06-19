@@ -1,5 +1,5 @@
 // Package redis provides a rate limiter based on redis.
-package redis
+package rate
 
 import (
 	"fmt"
