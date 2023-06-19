@@ -14,8 +14,8 @@ import (
 )
 
 func setup() {
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "127.0.0.1:6379",
+	redisClient := redis.NewRing(&redis.RingOptions{
+		Addrs:    map[string]string{"node1": "127.0.0.1:6379"},
 		Password: "",
 	})
 
@@ -24,7 +24,7 @@ func setup() {
 		panic(fmt.Sprintf("fail to ping redis client: %v", err))
 	}
 	fmt.Println(val)
-	if err := SetRedis(redisClient); err != nil {
+	if err := SetRedisWithClient(redisClient); err != nil {
 		panic(fmt.Sprintf("fail to initialize redis client: %v", err))
 	}
 }
