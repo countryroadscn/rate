@@ -1,24 +1,36 @@
 // Package redis provides a rate limiter based on redis.
-package redis
+package rate
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 )
 
 func setup() {
-	if err := SetRedis(&ConfigRedis{
-		Host: "127.0.0.1",
-		Port: 6379,
-		Auth: "",
-	}); err != nil {
+	redisClient := redis.NewRing(&redis.RingOptions{
+		Addrs:    map[string]string{"node1": "127.0.0.1:6379"},
+		Password: "",
+	})
+
+	val, err := redisClient.Ping(context.Background()).Result()
+	if err != nil {
+		panic(fmt.Sprintf("fail to ping redis client: %v", err))
+	}
+	fmt.Println(val)
+	if err := SetRedisWithClient(redisClient); err != nil {
 		panic(fmt.Sprintf("fail to initialize redis client: %v", err))
 	}
+}
+
+func TestRedisClient(t *testing.T) {
+	setup()
 }
 
 func teardown() {
