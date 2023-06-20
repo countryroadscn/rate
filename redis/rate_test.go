@@ -1,5 +1,5 @@
 // Package redis provides a rate limiter based on redis.
-package rate
+package redis
 
 import (
 	"context"
