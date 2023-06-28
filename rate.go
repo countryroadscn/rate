@@ -12,9 +12,20 @@ import (
 )
 
 var (
-	redisClient *redis.Ring
-	scriptHash  string
+	redisClient rediser
 )
+
+type rediser interface {
+	Ping(ctx context.Context) *redis.StatusCmd
+	Eval(ctx context.Context, script string, keys []string, args ...interface{}) *redis.Cmd
+	EvalSha(ctx context.Context, sha1 string, keys []string, args ...interface{}) *redis.Cmd
+	ScriptExists(ctx context.Context, hashes ...string) *redis.BoolSliceCmd
+	ScriptLoad(ctx context.Context, script string) *redis.StringCmd
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
+
+	EvalRO(ctx context.Context, script string, keys []string, args ...interface{}) *redis.Cmd
+	EvalShaRO(ctx context.Context, sha1 string, keys []string, args ...interface{}) *redis.Cmd
+}
 
 var script = redis.NewScript(`
 local tokens_key = KEYS[1]
@@ -55,66 +66,12 @@ return {
 }
 `)
 
-// Client indicates the redis client of the rate limiter.
-func Client() *redis.Ring {
-	return redisClient
-}
-
 // SetRedis sets the redis client.
-func SetRedisWithConfig(config *ConfigRedis) error {
-	if config == nil {
-		return errors.New("redis config is empty")
-	}
-
-	redisClient = newRedisClient(*config)
-	if redisClient == nil {
-		return errors.New("redis ring client is nil")
-	}
-
-	go func() {
-		timer := time.NewTicker(5 * time.Second)
-		for range timer.C {
-			loadScript()
-		}
-	}()
-	return loadScript()
-}
-
-// SetRedis sets the redis client.
-func SetRedisWithClient(client *redis.Ring) error {
+func SetRedisClient(client rediser) error {
 	if client == nil {
 		return errors.New("redis client is nil")
 	}
 	redisClient = client
-	// go func() {
-	// 	timer := time.NewTicker(5 * time.Second)
-	// 	for range timer.C {
-	// 		loadScript()
-	// 	}
-	// }()
-	// return loadScript()
-	return nil
-}
-
-// codis不支持script load
-func loadScript() error {
-	if redisClient == nil {
-		return errors.New("redis client is nil")
-	}
-
-	scriptHash = script.Hash()
-	exists, err := redisClient.ScriptExists(context.Background(), scriptHash).Result()
-	if err != nil {
-		return err
-	}
-
-	// load script when missing.
-	if !exists[0] {
-		err = script.Load(context.Background(), redisClient).Err()
-		if err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

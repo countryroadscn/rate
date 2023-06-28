@@ -14,8 +14,8 @@ import (
 )
 
 func setup() {
-	redisClient := redis.NewRing(&redis.RingOptions{
-		Addrs:    map[string]string{"node1": "127.0.0.1:6379"},
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     "127.0.0.1:6379",
 		Password: "",
 	})
 
@@ -24,7 +24,7 @@ func setup() {
 		panic(fmt.Sprintf("fail to ping redis client: %v", err))
 	}
 	fmt.Println(val)
-	if err := SetRedisWithClient(redisClient); err != nil {
+	if err := SetRedisClient(redisClient); err != nil {
 		panic(fmt.Sprintf("fail to initialize redis client: %v", err))
 	}
 }
@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 }
 
 func Test1QPS(t *testing.T) {
-	assert.NotNil(t, Client(), "redis client should not be empty")
+	assert.NotNil(t, redisClient, "redis client should not be empty")
 
 	limiter := NewLimiter(Every(time.Second), 1, "Test1QPS")
 	assert.NotNil(t, limiter)
@@ -54,7 +54,7 @@ func Test1QPS(t *testing.T) {
 }
 
 func Test1QP2S(t *testing.T) {
-	assert.NotNil(t, Client(), "redis client should not be empty")
+	assert.NotNil(t, redisClient, "redis client should not be empty")
 
 	limiter := NewLimiter(Every(2*time.Second), 1, "Test1QP2S")
 	assert.NotNil(t, limiter)
@@ -66,7 +66,7 @@ func Test1QP2S(t *testing.T) {
 }
 
 func Test10QPS(t *testing.T) {
-	assert.NotNil(t, Client(), "redis client should not be empty")
+	assert.NotNil(t, redisClient, "redis client should not be empty")
 
 	limiter := NewLimiter(Every(100*time.Millisecond), 10, "Test10QPS")
 	assert.NotNil(t, limiter)
@@ -78,7 +78,7 @@ func Test10QPS(t *testing.T) {
 }
 
 func TestConcurrent10QPS(t *testing.T) {
-	assert.NotNil(t, Client(), "redis client should not be empty")
+	assert.NotNil(t, redisClient, "redis client should not be empty")
 
 	var count = 5
 	var limiters []*Limiter
