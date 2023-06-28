@@ -1,4 +1,4 @@
-module github.com/countryroadscn/rate
+module github.com/countryroadscn/rate/redis
 
 go 1.20
 
